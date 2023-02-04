@@ -101,22 +101,24 @@ CF: seterror(err_CF);
 X:  return 0;
 }
 
-int sendbuf(unsigned char *p, unsigned l, enum ptype t)
-{
-  int sent;
 
-  if (l != (sent = send(t == VIDEO ? v_sock_ : a_sock_, (char *)p, l, 0))) {
-#if defined(_WIN32)
-    fprintf(stderr, "send (WSA Error: %d)\n", WSAGetLastError());
-#else
-    perror("send");
-#endif
-    fprintf(stderr, "- check if a receiver is listening on the destination port\n");
-    fprintf(stderr, "- check the max. packet size (MTU) for your system and transport protocol (probably %u byte)\n", max_packet_size_);
-    SLEEP(0);
-  }
+int sendbuf(unsigned char * p, unsigned l, enum ptype t) {
+/*Remoção da função SLEEP(0) que estava bloqueando a execução do mp4trace
+com esse ajuse o continuar su execução até o fim.*/
+    int sent;
 
-  return sent;
+    if (l != (sent = send(t == VIDEO ? v_sock_ : a_sock_, (char * ) p, l, 0))) {
+        #if defined(_WIN32)
+            fprintf(stderr, "send (WSA Error: %d)\n", WSAGetLastError());
+        #else
+            perror("error");
+        #endif
+          fprintf(stderr, "- check if a receiver is listening on the destination port\n");
+          fprintf(stderr, "- check the max. packet size (MTU) for your system and transport protocol (probably %u byte)\n", max_packet_size_);
+          return 0;
+    }
+
+    return sent;
 }
 
 void cleanup()
