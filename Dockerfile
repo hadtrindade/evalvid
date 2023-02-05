@@ -13,16 +13,12 @@ RUN apt-get update -y \
     && apt-get install --no-install-recommends -y wine \
     && rm -rf /var/lib/apt/lists/*
 
+
 WORKDIR /home/evalvid
-COPY src ./src
-COPY gpac ./gpac
-COPY compile.sh .
+
+COPY . /home/evalvid/
+
 RUN sh compile.sh
-RUN mkdir -p /data
+
 CMD ["/bin/bash"]
-
-
-FROM evalvid as evalvidffmpeg
-RUN apt-get update -y && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
-
 
