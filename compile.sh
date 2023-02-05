@@ -1,8 +1,9 @@
 #!/bin/sh
 ROOTDIR=/home/evalvid
 
+# Compile MP4Box
 cd ${ROOTDIR}/gpac
-#./configure
+
 ./configure  --enable-sdl-static
 sed -i 's/-Wl --warn-common//g' config.mak
 make
@@ -16,6 +17,7 @@ cd /usr/local/lib
 ln -s  /usr/local/lib64/* .
 ldconfig
 
-cd ${ROOTDIR}/src
+#Complile Evalvid
+cd ${ROOTDIR}
 make clean
 make install
