@@ -140,24 +140,36 @@ PS: seterror(err_PS);
     return 0;
 }
 
-void dequeue(queue_t *q)
-{
-  int r;
-  packet_t *pl;
+/*
+Foi adicionado um contador para tentar transmitir por 5 vezes, cada tentativa é realizada após 2s.
+*/
 
-  if (!lock(&q->lock)) return;
+void dequeue(queue_t * q) {
+    int r;
+    packet_t * pl;
+    int to_try = 0;
 
-  pl = q->packetlist;
-  while (pl) {
-    if (q->mode & MODE_STREAM || pl->tstamp <= curtime()) {
-      if (0 < (r = sendbuf(pl->p, pl->size, pl->frame == A ? AUDIO : VIDEO))) {
-        q->bytes_sent += r;
-        pl = delpacket(q, pl);
-      }
+    if (!lock( & q -> lock)) return;
+
+    pl = q -> packetlist;
+    while (pl) {
+        if (q -> mode & MODE_STREAM || pl -> tstamp <= curtime()) {
+            if (0 < (r = sendbuf(pl -> p, pl -> size, pl -> frame == A ? AUDIO : VIDEO))) {
+                q -> bytes_sent += r;
+                pl = delpacket(q, pl);
+            }
+            if (r < 0) {
+                to_try++;
+                fprintf(stderr, "mp4trace trying to send: %d \n", to_try);
+                sleep(2);
+            }
+            if (to_try == 5) {
+                exit(1);
+            }
+        }
     }
-  }
 
-  unlock(&q->lock);
+    unlock( & q -> lock);
 }
 
 void sortqueue(queue_t *q)
