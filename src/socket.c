@@ -103,8 +103,9 @@ X:  return 0;
 
 
 int sendbuf(unsigned char * p, unsigned l, enum ptype t) {
-/*Remoção da função SLEEP(0) que estava bloqueando a execução do mp4trace
-com esse ajuse o continuar su execução até o fim.*/
+/*
+Foi realizada as retirada do SLEEP(0) que estava bloqueando eternamente a aplicação.
+*/
     int sent;
 
     if (l != (sent = send(t == VIDEO ? v_sock_ : a_sock_, (char * ) p, l, 0))) {
@@ -115,9 +116,7 @@ com esse ajuse o continuar su execução até o fim.*/
         #endif
           fprintf(stderr, "- check if a receiver is listening on the destination port\n");
           fprintf(stderr, "- check the max. packet size (MTU) for your system and transport protocol (probably %u byte)\n", max_packet_size_);
-          return 0;
     }
-
     return sent;
 }
 
