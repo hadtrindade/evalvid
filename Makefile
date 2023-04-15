@@ -56,4 +56,4 @@ tar:
 	@tar cjf evalvid-2.7.tar.bz2 *.h *.c *.vcproj *.sln Makefile
 
 docker:
-	docker container run -it --rm --name evalvid --mount type=bind,source=$(shell pwd),dst=/home/evalvid evalvid
+	docker container run -it --rm --name evalvid -v $(shell pwd):/home/evalvid evalvid

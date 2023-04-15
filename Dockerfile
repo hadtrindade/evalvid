@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as evalvid
+FROM ubuntu:16.04
 
 RUN apt-get update -y \
      && apt-get -y upgrade \
