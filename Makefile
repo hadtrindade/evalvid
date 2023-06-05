@@ -84,5 +84,8 @@ clean:
 	@rm -f $(APPS) gmon.out *.s *.i *~ *.*~ evalvid-2.7.tar.bz2
 	@rm -rf objects
 
-docker:
+docker-build:
+	docker build --pull --rm -f "Dockerfile" -t evalvid "."
+
+docker-run:
 	docker container run -it --rm --name evalvid -v $(shell pwd):/home/evalvid evalvid

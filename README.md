@@ -9,16 +9,18 @@
 
 # Instalação.
 
-## Passo 1 - Complilar a Lib GPAC:
-
+## Passo 1 - Buildar imagem Docker do Evalvid:
 ```bash
-bash compile_gpac.sh
-
+make docker-build
 ```
 
-## Passo 2 - Complilar Evalvid:
+## Passo 2 - Inciar container:
+```bash
+make docker-run
+```
+
+## Passo 3 - Complilar Evalvid:
 
 ```bash
-make clean
-make install
+make all
 ```
