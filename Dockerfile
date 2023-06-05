@@ -1,24 +1,20 @@
-FROM ubuntu:16.04
+FROM ubuntu
 
-RUN apt-get update -y \
-     && apt-get -y upgrade \
-     && apt-get install --no-install-recommends -y git make pkg-config g++ zlib1g-dev \
-     libfreetype6-dev libjpeg62-dev libpng12-dev libopenjpeg-dev libmad0-dev libfaad-dev \
-     libogg-dev libvorbis-dev libtheora-dev liba52-0.7.4-dev libavcodec-dev libavformat-dev \
-     libavutil-dev libswscale-dev libavresample-dev libxv-dev x11proto-video-dev libgl1-mesa-dev \
-     x11proto-gl-dev linux-sound-base libxvidcore-dev libssl-dev libjack-dev libasound2-dev \
-     libpulse-dev libsdl1.2-dev dvb-apps libavcodec-extra libavdevice-dev libmozjs185-dev \
-     libghc-glut-dev x264 \
-    && dpkg --add-architecture i386 && apt-get update -y \
-    && apt-get install --no-install-recommends -y wine \
-    && rm -rf /var/lib/apt/lists/*
-
+RUN apt update && apt install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        lib32ncurses-dev \
+        zlib1g-dev
 
 WORKDIR /home/evalvid
 
 COPY . /home/evalvid/
 
-RUN sh compile.sh
+RUN cp -R libgpac/gpac /usr/include \
+    && cp libgpac/libgpac_static.a /usr/lib \
+    && cd /usr/local/lib \
+    && ln -s  /usr/local/lib64/* . \
+    && ldconfig
 
 CMD ["/bin/bash"]
 

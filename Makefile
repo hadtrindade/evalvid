@@ -1,59 +1,88 @@
+#VARS
+APPS=mp4trace etmp4 psnr hist mos miv eg vsgen
 CC=gcc
-SRC=src/$(wildcard *.c)
-OBJ=$(SRC:.c=../.o)
+C_SOURCE=$(wildcard ./src/*.c)
+H_SOURCE=$(wildcard ./src/*.h)
+OBJ=$(subst .c,.o,$(subst src,objects,$(C_SOURCE)))
 PRF=-pg
-COP=-W -Wall -Wno-sign-compare -Wno-multichar -Wno-pointer-sign -Wno-parentheses -Wno-missing-field-initializers -Wno-missing-braces -O3
-DST=mp4trace etmp4 psnr hist mos miv eg vsgen
+CC_FLAGS=-W                              \
+         -Wall                           \
+		 -Wno-sign-compare               \
+		 -Wno-multichar                  \
+		 -Wno-pointer-sign               \
+		 -Wno-parentheses                \
+		 -Wno-missing-field-initializers \
+		 -Wno-missing-braces             \
+		 -O3                             \
+		 -c
+
 INSTDIR=/usr/local/bin
 
-all: $(DST)
+all: objFolder $(APPS)
 
-mp4trace: src/bits.o src/error.o src/lock.o src/misc.o src/queue.o src/socket.o src/thread.o src/timing.o src/mp4trace.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@ -lpthread -lgpac_static -static
+mp4trace: objects/bits.o objects/error.o objects/lock.o objects/misc.o objects/queue.o objects/socket.o objects/thread.o objects/timing.o objects/mp4trace.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@ -lpthread -lgpac_static -static -lncurses -ltinfo
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-etmp4: src/bits.o src/misc.o src/read.o src/stat.o src/writemp4.o src/etmp4.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@ -lgpac_static -lm -static
+etmp4: objects/bits.o objects/misc.o objects/read.o objects/stat.o objects/writemp4.o objects/etmp4.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@ -lgpac_static -lm -static -lncurses -ltinfo
+	@echo 'Finished building binary: $@'
+	@echo ' '
+ 
+psnr: objects/psnr.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@ -lm
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-psnr: src/psnr.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@ -lm
+hist: objects/stat.o objects/hist.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-hist: src/stat.o src/hist.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@
+mos: objects/dir.o objects/mos.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-mos: src/dir.o src/mos.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@
+miv: objects/dir.o objects/miv.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-miv: src/dir.o src/miv.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@
+eg: objects/misc.o objects/random.o objects/read.o objects/eg.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-eg: src/misc.o src/random.o src/read.o src/eg.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@
+vsgen: objects/vsgen.o
+	@echo 'Building binary using GCC linker: $@'
+	$(CC) $^ -o $@ -lm
+	@echo 'Finished building binary: $@'
+	@echo ' '
 
-vsgen: src/vsgen.o
-	@echo L $@ ...
-	@$(CC) $^ -o $@ -lm
+./objects/%.o: ./src/%.c
+	@echo 'Building target using GCC compiler: $<'
+	$(CC) $< $(CC_FLAGS) -o $@
+	@echo ' '
 
-$(OBJ)/%.o: %.c
-	@echo C $< ...
-	@$(CC) $(COP) -c $<
+install: objFolder $(APPS)
+	@echo I $(APPS) in $(INSTDIR) ...
+	@install -s -m 755 $(APPS) $(INSTDIR)
 
-install: $(DST)
-	@echo I $(DST) in $(INSTDIR) ...
-	@install -s -m 755 $(DST) $(INSTDIR)
+objFolder:
+	@ mkdir -p objects
 
 clean:
-	@rm -f $(DST) gmon.out *.s *.i *~ *.*~ evalvid-2.7.tar.bz2
-	@rm -f src/*.o
-
-tar:
-	@tar cjf evalvid-2.7.tar.bz2 *.h *.c *.vcproj *.sln Makefile
+	@rm -f $(APPS) gmon.out *.s *.i *~ *.*~ evalvid-2.7.tar.bz2
+	@rm -rf objects
 
 docker:
 	docker container run -it --rm --name evalvid -v $(shell pwd):/home/evalvid evalvid
